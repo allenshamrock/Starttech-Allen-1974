@@ -36,6 +36,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Debug Docker Credentials
+        run: |
+          echo "Checking Docker credentials..."
+          echo "Username length: ${#DOCKER_USERNAME}"
+          echo "Username: '$DOCKER_USERNAME'"
+          echo "Password length: ${#DOCKER_PASSWORD}"
+          echo "Full tag: $DOCKER_USERNAME/starttech-backend:latest"
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
