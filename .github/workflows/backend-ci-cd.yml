@@ -1,4 +1,4 @@
-name: Backend CI/CD to Docker Hub
+name: Backend CI/CD to Docker 
 
 on:
   push:
