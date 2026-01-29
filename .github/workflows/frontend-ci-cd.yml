@@ -114,7 +114,7 @@ jobs:
         S3_BUCKET=${{ secrets.S3_BUCKET }} \
         CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
         REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
-        ./../scripts/deploy-Client.sh
+        ./../scripts/deploy-frontend.sh
 
     - name: Health check
       run: |
