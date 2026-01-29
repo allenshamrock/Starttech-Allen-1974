@@ -30,8 +30,8 @@ echo "   Environment: $ENVIRONMENT"
 echo "   AWS Region: $AWS_REGION"
 
 # Validate required variables
-if [[ -z "$DOCKER_USERNAME" ]] || [[ "$DOCKER_USERNAME" == "allen567" ]]; then
-    echo " ERROR: DOCKER_USERNAME not set or still default"
+if [[ -z "$DOCKER_USERNAME" ]]; then
+    echo " ERROR: DOCKER_USERNAME not set"
     exit 1
 fi
 
@@ -242,23 +242,3 @@ DEPLOYMENT_INFO=$(cat <<EOF
 }
 EOF
 )
-
-echo "$DEPLOYMENT_INFO" > deployment.json
-
-# Send notification (optional)
-if [[ -n "$SLACK_WEBHOOK_URL" ]]; then
-    echo " Sending deployment notification..."
-    curl -X POST -H 'Content-type: application/json' \
-        --data "{\"text\":\" Backend deployed to $ENVIRONMENT\n• Image: $DOCKER_USERNAME/$IMAGE_NAME:$GIT_COMMIT\n• Commit: $GIT_COMMIT\n• Branch: $GIT_BRANCH\n• Status: Success\"}" \
-        $SLACK_WEBHOOK_URL
-fi
-
-echo " Backend deployment completed successfully!"
-echo ""
-echo " Summary:"
-echo "   Docker Image: $DOCKER_USERNAME/$IMAGE_NAME:$GIT_COMMIT"
-echo "   Environment: $ENVIRONMENT"
-echo "   Commit: $GIT_COMMIT"
-if [[ -n "$ALB_DNS" ]]; then
-    echo "   Endpoint: http://$ALB_DNS"
-fi
