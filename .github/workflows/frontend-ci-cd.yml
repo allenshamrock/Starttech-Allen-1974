@@ -133,6 +133,7 @@ jobs:
     - name: Deploy to S3
       run: |
         cd Client
+        chmod +x ../scripts/deploy-frontend.sh
         S3_BUCKET=${{ secrets.S3_BUCKET }} \
         CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
         ../scripts/deploy-frontend.sh
