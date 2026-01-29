@@ -67,29 +67,30 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    environment: production
+deploy:
+  runs-on: ubuntu-latest
+  needs: build-and-push
+  environment: production
+  
+  steps:
+    - uses: actions/checkout@v4
     
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      
-      - name: Deploy to EC2
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          MONGODB_URL: ${{ secrets.MONGODB_URL }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-        run: |
-          chmod +x ./scripts/deploy-backend.sh
-          ./scripts/deploy-backend.sh
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Deploy to EC2
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        MONGODB_URL: ${{ secrets.MONGODB_URL }}
+        REDIS_URL: ${{ secrets.REDIS_URL }}
+      run: |
+        chmod +x ./scripts/deploy-backend.sh
+        # Pass the Docker username explicitly to avoid reading from .env
+        DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} ./scripts/deploy-backend.sh
