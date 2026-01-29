@@ -53,7 +53,7 @@ jobs:
       working-directory: Client
 
     - name: Run tests
-      run: npm test -- --watchAll=false --passWithNoTests --coverage
+      run: npm test:coverage 
       working-directory: Client
 
     - name: Upload test coverage
