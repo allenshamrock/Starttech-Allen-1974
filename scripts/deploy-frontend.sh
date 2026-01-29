@@ -3,7 +3,7 @@
 # Frontend Deployment Script for Vite
 set -e  
 
-echo "🚀 Starting frontend deployment..."
+echo " Starting frontend deployment..."
 
 # Load environment variables
 if [ -f .env ]; then

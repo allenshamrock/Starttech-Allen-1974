@@ -98,7 +98,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Client-build
-        path: Client/dist  
+        path: Client/dist
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -107,14 +107,35 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Debug AWS Access
+      run: |
+        echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
+        echo "Trying to list buckets..."
+        aws s3api list-buckets --query "Buckets[].Name"
+
+    - name: Create S3 Bucket
+      run: |
+        BUCKET_NAME="${{ secrets.S3_BUCKET }}"
+        
+        # Try to create bucket (will fail if exists, that's)
+        aws s3api create-bucket \
+          --bucket "$BUCKET_NAME" \
+          --region ${{ env.AWS_REGION }} \
+          --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }} \
+          2>/dev/null || echo "Bucket may already exist"
+        
+        # Configure bucket
+        aws s3 website "s3://$BUCKET_NAME" \
+          --index-document index.html \
+          --error-document index.html \
+          2>/dev/null || echo "Website config may already exist"
+
     - name: Deploy to S3
       run: |
-        chmod +x ./scripts/deploy-frontend.sh
         cd Client
         S3_BUCKET=${{ secrets.S3_BUCKET }} \
         CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-        REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
-        ./../scripts/deploy-frontend.sh
+        ../scripts/deploy-frontend.sh
 
     - name: Health check
       run: |
