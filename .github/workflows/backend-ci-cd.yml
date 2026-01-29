@@ -10,6 +10,7 @@ on:
     branches: [ main, master ]
 
 env:
+  # DOCKER_USERNAME: allen567
   IMAGE_NAME: starttech-backend
 
 jobs:
@@ -90,11 +91,5 @@ jobs:
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
-          # Debug: Show what we received
-          echo "=== Debug Information ==="
-          echo "DOCKER_USERNAME from env: '$DOCKER_USERNAME'"
-          echo "Length: ${#DOCKER_USERNAME}"
-          
-          # Simple solution: Pass the variable explicitly to the script
           chmod +x ./scripts/deploy-backend.sh
-          DOCKER_USERNAME="$DOCKER_USERNAME" DOCKER_PASSWORD="$DOCKER_PASSWORD" ./scripts/deploy-backend.sh
+          ./scripts/deploy-backend.sh
