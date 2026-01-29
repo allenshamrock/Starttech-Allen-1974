@@ -11,7 +11,7 @@ if [ -f .env ]; then
 fi
 
 # Required variables
-DOCKER_USERNAME=${DOCKER_USERNAME:-"allen567"}
+DOCKER_USERNAME=${DOCKER_USERNAME}
 IMAGE_NAME=${IMAGE_NAME:-"starttech-backend"}
 TAG=${TAG:-"latest"}
 ENVIRONMENT=${ENVIRONMENT:-"production"}

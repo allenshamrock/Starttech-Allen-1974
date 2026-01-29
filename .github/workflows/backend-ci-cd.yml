@@ -10,7 +10,7 @@ on:
     branches: [ main, master ]
 
 env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_USERNAME: allen567
   IMAGE_NAME: starttech-backend
 
 jobs:
