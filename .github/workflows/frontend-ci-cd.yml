@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'frontend/**'
+      - 'Client/**'
       - '.github/workflows/frontend-ci-cd.yml'
   pull_request:
     branches: [ main, master ]
@@ -37,37 +37,37 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        # cache-dependency-path: frontend/package-lock.json
+        cache-dependency-path: Client/package-lock.json
 
     - name: Install dependencies
       run: npm ci
-      working-directory: frontend
+      working-directory: Client
 
     - name: Security audit
       run: npm audit --audit-level=high
-      working-directory: frontend
+      working-directory: Client
       continue-on-error: true  
 
     - name: Run linter
       run: npm run lint
-      working-directory: frontend
+      working-directory: Client
 
     - name: Run tests
       run: npm test -- --watchAll=false --passWithNoTests --coverage
-      working-directory: frontend
+      working-directory: Client
 
     - name: Upload test coverage
       uses: codecov/codecov-action@v3
       with:
-        directory: frontend/coverage
-        flags: frontend
+        directory: Client/coverage
+        flags: Client
 
     - name: Build application
       run: |
         npm run build
         echo "Build size:"
         du -sh build/
-      working-directory: frontend
+      working-directory: Client
       env:
         REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
         REACT_APP_ENVIRONMENT: ${{ github.event_name == 'pull_request' && 'PR' || github.ref_name }}
@@ -76,8 +76,8 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: frontend-build
-        path: frontend/build/
+        name: Client-build
+        path: Client/build/
         retention-days: 7
 
   deploy:
@@ -94,8 +94,8 @@ jobs:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: frontend-build
-        path: frontend/build
+        name: Client-build
+        path: Client/build
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -106,12 +106,12 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        chmod +x ./scripts/deploy-frontend.sh
-        cd frontend
+        chmod +x ./scripts/deploy-Client.sh
+        cd Client
         S3_BUCKET=${{ secrets.S3_BUCKET }} \
         CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
         REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
-        ./../scripts/deploy-frontend.sh
+        ./../scripts/deploy-Client.sh
 
     - name: Health check
       run: |
