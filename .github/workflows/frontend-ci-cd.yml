@@ -130,10 +130,10 @@ jobs:
         
         # Check if our bucket exists
         if echo "$ALL_BUCKETS" | grep -q "$BUCKET_NAME"; then
-          echo " Bucket exists"
+          echo "✓ Bucket exists"
           echo "exists=true" >> $GITHUB_OUTPUT
         else
-          echo " Bucket does not exist. Creating..."
+          echo "✗ Bucket does not exist. Creating..."
           
           # Create bucket command
           if [ "$REGION" = "us-east-1" ]; then
@@ -153,17 +153,20 @@ jobs:
             --index-document index.html \
             --error-document index.html
           
-          echo " Bucket created"
+          echo "✓ Bucket created"
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
         
         # Test access
         echo "Testing bucket access..."
-        aws s3 ls "s3://$BUCKET_NAME/" 2>/dev/null && echo " Can access bucket" || echo " Cannot list bucket "
+        aws s3 ls "s3://$BUCKET_NAME/" 2>/dev/null && echo "✓ Can access bucket" || echo "✗ Cannot list bucket"
 
     - name: Deploy to S3
       run: |
         cd Client
+        
+        # Make deploy script executable
+        chmod +x ../scripts/deploy-frontend.sh
         
         # Use bucket name from secrets
         S3_BUCKET="${{ secrets.S3_BUCKET }}" \
