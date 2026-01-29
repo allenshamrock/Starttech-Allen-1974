@@ -107,70 +107,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Debug - Check AWS Access
-      run: |
-        echo "=== AWS DEBUG ==="
-        echo "Account: $(aws sts get-caller-identity --query Account --output text)"
-        echo "User: $(aws sts get-caller-identity --query Arn --output text)"
-        echo "Listing all buckets:"
-        aws s3api list-buckets --query "Buckets[].{Name:Name,Region:Location.LocationConstraint}" --output table
-        echo "=== END DEBUG ==="
-
-    - name: Create or Verify S3 Bucket
-      id: s3-bucket
-      run: |
-        BUCKET_NAME="${{ secrets.S3_BUCKET }}"
-        REGION="${{ env.AWS_REGION }}"
-        
-        echo "Target bucket: $BUCKET_NAME"
-        
-        # List all buckets to see what exists
-        ALL_BUCKETS=$(aws s3api list-buckets --query "Buckets[].Name" --output text)
-        echo "Existing buckets: $ALL_BUCKETS"
-        
-        # Check if our bucket exists
-        if echo "$ALL_BUCKETS" | grep -q "$BUCKET_NAME"; then
-          echo "✓ Bucket exists"
-          echo "exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "✗ Bucket does not exist. Creating..."
-          
-          # Create bucket command
-          if [ "$REGION" = "us-east-1" ]; then
-            aws s3api create-bucket \
-              --bucket "$BUCKET_NAME" \
-              --region "$REGION"
-          else
-            aws s3api create-bucket \
-              --bucket "$BUCKET_NAME" \
-              --region "$REGION" \
-              --create-bucket-configuration LocationConstraint="$REGION"
-          fi
-          
-          # Configure for static website
-          sleep 3
-          aws s3 website "s3://$BUCKET_NAME" \
-            --index-document index.html \
-            --error-document index.html
-          
-          echo "✓ Bucket created"
-          echo "exists=false" >> $GITHUB_OUTPUT
-        fi
-        
-        # Test access
-        echo "Testing bucket access..."
-        aws s3 ls "s3://$BUCKET_NAME/" 2>/dev/null && echo "✓ Can access bucket" || echo "✗ Cannot list bucket"
-
-    - name: Deploy to S3.
+    - name: Deploy to S3
       run: |
         cd Client
         
         # Make deploy script executable
         chmod +x ../scripts/deploy-frontend.sh
         
-        # Use bucket name from secrets
+        # Run deployment (script handles bucket creation if needed)
         S3_BUCKET="${{ secrets.S3_BUCKET }}" \
         CLOUDFRONT_DISTRIBUTION_ID="${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" \
+        AWS_REGION="${{ env.AWS_REGION }}" \
         ../scripts/deploy-frontend.sh
 
     - name: Health check
