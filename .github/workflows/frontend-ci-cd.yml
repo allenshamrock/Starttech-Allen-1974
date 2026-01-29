@@ -161,7 +161,7 @@ jobs:
         echo "Testing bucket access..."
         aws s3 ls "s3://$BUCKET_NAME/" 2>/dev/null && echo "✓ Can access bucket" || echo "✗ Cannot list bucket"
 
-    - name: Deploy to S3
+    - name: Deploy to S3.
       run: |
         cd Client
         
